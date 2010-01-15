@@ -23,6 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.Security;
+using System.Net;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Evernote.EDAM.NoteStore;
@@ -31,6 +32,7 @@ using Evernote.EDAM.UserStore;
 using Thrift.Protocol;
 using Thrift.Transport;
 using Notebook=Evernote.EDAM.Type.Notebook;
+using Tomboy.WebSync.Api;
 
 //Global TODOs:
 // TODO - implement a locking mechanism
@@ -51,9 +53,9 @@ namespace Tomboy.Sync
         // ***** YOU MUST REPLACE THESE WITH YOUR OWN *****
         // ************************************************
         // SEE: http://www.evernote.com/about/developer/api/
-        const string ConsumerKey = "your_key_here";
-        const string ConsumerSecret = "your_secret_here"; 
-        const string EdamBaseUrl = "https://sandbox.evernote.com";
+       	const string ConsumerKey = EvernoteKeys.ConsumerKey;
+		const string ConsumerSecret = EvernoteKeys.ConsumerSecret;
+		const string EdamBaseUrl = "https://sandbox.evernote.com";
 
         // If using Mono, see http://www.mono-project.com/FAQ:_Security
         const string UserStoreUrl = EdamBaseUrl + "/edam/user";
@@ -76,6 +78,7 @@ namespace Tomboy.Sync
             {
                 throw new Exception("You need to Update the Evernote ConsumerKey!! Open up the EvernoteSyncServer.cs file and look at it!");
             }
+			ServicePointManager.CertificatePolicy = new CertificateManager ();
             bool versionOK =
                 _userStore.checkVersion("Tomboy.EvernoteSyncAddin",
                                         Evernote.EDAM.UserStore.Constants.EDAM_VERSION_MAJOR,
@@ -284,17 +287,19 @@ namespace Tomboy.Sync
             foreach (Note note in notes)
             {
                 bool foundNote = false;
+				Evernote.EDAM.Type.Note enote = null;
                 foreach (Evernote.EDAM.Type.Note evernote in evernoteList.Notes)
                 {
                     if (GetCorrectGuid(evernote) == note.Id)
                     {
                         foundNote = true;
+						enote = evernote;
                         break;
                     }
                 }
                 if (foundNote)
                 {                
-                    UpdateEvernote(note, note.Id);
+                    UpdateEvernote(enote, note);
                 } 
                 else 
                 {
@@ -357,21 +362,17 @@ namespace Tomboy.Sync
             return evernote;
         }       
 
-        public bool UpdateEvernote(Note note, string guid)
+        public bool UpdateEvernote(Evernote.EDAM.Type.Note evernote,  Note tomboynote)
         {
+			Logger.Debug("Updating evernote: " + evernote.Guid);
             try
             {
-                // TODO - if we ever want to handle embedded resources (pics, etc), this needs to change
-                Evernote.EDAM.Type.Note newNote = _noteStore.getNote(_authToken, guid, true, false, false, false);
-                if (newNote == null)
-                {
-                    return false;
-                }
-                newNote = FillEvernote(note, newNote);
-                _noteStore.updateNote(_authToken, newNote);
+                evernote = FillEvernote(tomboynote, evernote);
+                _noteStore.updateNote(_authToken, evernote);
             }
             catch (Exception e)
             {
+				Logger.Warn(e.ToString());
                 return false;
             }
             
