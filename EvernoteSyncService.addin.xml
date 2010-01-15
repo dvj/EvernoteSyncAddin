@@ -1,0 +1,21 @@
+<Addin id="EvernoteSyncServiceAddin"
+	namespace="Tomboy"
+	name="Evernote Sync Service Add-in"
+	author="Doug Johnston"
+	description="Synchronize Tomboy Notes to Evernote"
+	category="Synchronization"
+	defaultEnabled="false"
+	version="0.1">
+
+	<Runtime>
+		<Import assembly="EvernoteSyncService.dll" />
+	</Runtime>
+
+	<Dependencies>
+		<Addin id="Tomboy" version="0.10" />
+	</Dependencies>
+
+	<Extension path="/Tomboy/SyncServiceAddins">
+		<SyncServiceAddin type="Tomboy.Sync.EvernoteSyncServiceAddin" />
+	</Extension>
+</Addin>
