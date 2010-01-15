@@ -30,4 +30,4 @@ Using:
 
 BACK UP YOUR TOMBOY NOTES!!
 
-Once installed in the .tomboy/addins directory, enable in the Preferences->Add-ins menu, then select "Evernote" from the Synchronization menu. Enter in your evernote username and password (NOT your API keys) from THE SANDBOX SERVER. Your regualr Evernote account will not work until this is released for real.
+Install the plugin in an appropriate place (see http://live.gnome.org/Tomboy/Directories) , enable in the Preferences->Add-ins menu, then select "Evernote" from the Synchronization menu. Enter in your evernote username and password (NOT your API keys) from THE SANDBOX SERVER. Your regualr Evernote account will not work until this is released for real.
