@@ -118,9 +118,8 @@ select="'&#10;'"
 
   <xsl:template match="link:url">
     <!--<a href="{node()}">-->
-    <a>
       <xsl:value-of select="node()"/>
-    </a>
+    <!-- </a> -->
   </xsl:template>
 
   <xsl:template match="tomboy:list">
@@ -164,6 +163,13 @@ select="'&#10;'"
     <a href="{@uri}">
       <xsl:value-of select="node()" />
     </a>
+  </xsl:template>
+
+  <!-- Underline Plugin -->
+  <xsl:template match="underline">
+    <u>
+      <xsl:value-of select="node()" />
+    </u>
   </xsl:template>
 
 </xsl:stylesheet>
