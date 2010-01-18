@@ -7,7 +7,7 @@ using Mono.Unix;
 // Global TODOs:
 // TODO - dont store password as plaintext (Gnome Keyring on linux, what about OSX, win?)
 // TODO - prompt user for passwd if they dont store it
-// TODO - support custom notebook name (or Evernote default) 
+// TODO - support custom notebook name (or Evernote default)
 
 namespace Tomboy.Sync
 {
@@ -19,7 +19,7 @@ namespace Tomboy.Sync
         private string _password;
         private const string UsernameSetting = "/apps/tomboy/evernote/username";
         private const string PasswordSetting = "/apps/tomboy/evernote/password";
-        
+
         private bool _initialized = false;
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Tomboy.Sync
 
             if (syncUsername == string.Empty) {
                 // TODO: Figure out a way to send the error back to the client
-                Logger.Debug ("The username is empty");
+                Logger.Debug ("[Evernote] The username is empty");
                 throw new TomboySyncException (Catalog.GetString ("Username field is empty."));
             }
 
