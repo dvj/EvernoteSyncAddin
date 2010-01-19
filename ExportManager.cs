@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -28,14 +29,35 @@ namespace Tomboy
         {
             if (File.Exists(xslLocation))
             {
-                Logger.Debug("ExportToHTML: Using user-custom {0} file.", xslLocation);
+                Logger.Debug("[Evernote] Using user-custom {0} file.", xslLocation);
                 _xsl.Load(xslLocation);
             }
             else
             {
                 //TODO - could do fancy stuff with embedded assembly. Probably not worth it
-                Logger.Error("Unable to find XSL export template '{0}'.", xslLocation);
-                return false;
+                Assembly asm = Assembly.GetExecutingAssembly();
+                string[] names = asm.GetManifestResourceNames();
+                string asmDir = System.IO.Path.GetDirectoryName(asm.Location);
+                string xslLocation2 = Path.Combine(asmDir, xslLocation);
+                if (File.Exists(xslLocation2))
+                {
+                    Logger.Debug("[Evernote] Using user-custom {0} file.", xslLocation);
+                    _xsl.Load(xslLocation);
+                }
+                else
+                {
+                    Stream resource = asm.GetManifestResourceStream(xslLocation);
+                    if (resource != null)
+                    {
+                        XmlTextReader reader = new XmlTextReader(resource);
+                        Logger.Debug("[Evernote] Using user-custom {0} file.", xslLocation);
+                        _xsl.Load(reader, null, null);
+                        resource.Close();
+                        return true;
+                    }                    
+                    Logger.Error("[Evernote] Unable to find XSL export template '{0}'.", xslLocation);
+                    return false;
+                }
             }
             return true;
         }

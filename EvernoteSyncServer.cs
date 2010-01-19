@@ -35,14 +35,12 @@ using Evernote.EDAM.Type;
 using Evernote.EDAM.UserStore;
 using Thrift.Protocol;
 using Thrift.Transport;
+using Tomboy.WebSync.Api;
 using Notebook=Evernote.EDAM.Type.Notebook;
 
 //Global TODOs:
 // TODO - implement a locking mechanism
 // TODO - make the commits transactional
-// TODO - solve GUID problem
-// TODO - Convert Tomboy->EDAM-XML and EDAM-XML->tomboy, instead of stripping tags (take advantage of NoteConvert class?)
-// TODO - StripEvernoteHeadersFromNoteContent is terrible. Fix it.
 // TODO - properly try/catch all the evernote calls. They throw lots of different exceptions
 // TODO - return errors to the user, don't silently fail
 
@@ -61,7 +59,9 @@ namespace Tomboy.Sync
 		const string EdamBaseUrl = "https://sandbox.evernote.com";
 
         // If using Mono, see http://www.mono-project.com/FAQ:_Security
-        const string UserStoreUrl = EdamBaseUrl + "/edam/user";
+        private const string UserStoreUrl = EdamBaseUrl + "/edam/user";
+        private const string EvernoteToTomboyXSLTResourceName = "EvernoteSyncService.EvernoteToTomboy.xslt";
+        private const string TomboyToEvernoteXSLTResourceName = "EvernoteSyncService.TomboyToEvernote.xslt";
         private readonly UserStore.Client _userStore;
         private NoteStore.Client _noteStore;
         private string _authToken;
@@ -89,12 +89,13 @@ namespace Tomboy.Sync
 
         public bool BeginSyncTransaction()
         {
+            Logger.Debug("[Evernote] Begining Sync...");
             if (ConsumerKey.Equals("your_key_here"))
             {
                 throw new Exception("You need to Update the Evernote ConsumerKey!! Open up the EvernoteSyncServer.cs file and look at it!");
             }
-			//ServicePointManager.CertificatePolicy = new CertificateManager ();
-            ServicePointManager.ServerCertificateValidationCallback += ValidateServerCertificate;
+			ServicePointManager.CertificatePolicy = new CertificateManager ();
+            //ServicePointManager.ServerCertificateValidationCallback += ValidateServerCertificate;
             bool versionOK =
                 _userStore.checkVersion("Tomboy.EvernoteSyncAddin",
                                         Evernote.EDAM.UserStore.Constants.EDAM_VERSION_MAJOR,
@@ -161,12 +162,14 @@ namespace Tomboy.Sync
         {
             //TODO - actually sync
             //TODO - Success! Close down everything
+            Logger.Debug("[Evernote] Done with sync.");
             return true;
         }
 
         public bool CancelSyncTransaction()
         {
             //TODO - close down everything
+            Logger.Warn("[Evernote] Canceling sync due to error");
             return true;
         }
 
@@ -261,7 +264,7 @@ namespace Tomboy.Sync
             {
                 evernoteContent = "Could not retrieve Evernote Content";
             }
-            ExportManager exportManager = new ExportManager("EvernoteToTomboy.xslt");
+            ExportManager exportManager = new ExportManager(EvernoteToTomboyXSLTResourceName);
             string tomboyContent;
             try
             {
@@ -405,7 +408,7 @@ namespace Tomboy.Sync
             evernote.Attributes.SourceApplication = "tomboy"; //this note came from tomboy. This is read later to match guids
             evernote.Attributes.Source = tomboynote.Id;
 
-            ExportManager exportManager = new ExportManager("TomboyToEvernote.xslt");
+            ExportManager exportManager = new ExportManager(TomboyToEvernoteXSLTResourceName);
             string mycontent = exportManager.ApplyXSL(tomboynote);
 
             string content = mycontent;
