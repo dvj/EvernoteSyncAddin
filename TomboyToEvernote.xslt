@@ -9,10 +9,7 @@
               omit-xml-declaration="yes"
               doctype-system="http://xml.evernote.com/pub/enml.dtd"/>
   <xsl:param name="newline" select="'&#xA;'" />
-  <xsl:variable
-name="new-line"
-select="'&#10;'"
-/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="tomboy:note"/>
   </xsl:template>
@@ -31,7 +28,20 @@ select="'&#10;'"
           <xsl:with-param name="text" select="substring-after($text, '&#xA;')"/>
         </xsl:call-template>
       </xsl:when>
-
+      <xsl:when test="contains($text, '&#x2028;')">
+        <xsl:value-of select="substring-before($text, '&#x2028;')"/>
+        <br/>
+        <xsl:call-template name="softbreak">
+          <xsl:with-param name="text" select="substring-after($text, '&#x2028;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($text, '&#xA;&#xA;')">
+        <xsl:value-of select="substring-before($text, '&#xA;&#xA;')"/>
+        <xsl:value-of select="'&#xA;&#xA;'"/>
+        <xsl:call-template name="softbreak">
+          <xsl:with-param name="text" select="substring-after($text, '&#xA;&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$text"/>
       </xsl:otherwise>
