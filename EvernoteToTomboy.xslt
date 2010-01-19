@@ -13,10 +13,9 @@
 
   <xsl:preserve-space elements="*" />
 
-
   <xsl:template match="br">
-    <xsl:text>
-</xsl:text>
+    <!-- hopefully a universal newline -->
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="b">
@@ -82,6 +81,54 @@
 	<link:url><xsl:value-of select="@href"/></link:url>
 </xsl:template>
 -->
+  <xsl:template match="font">
+    <xsl:choose>
+      <xsl:when test="@size = '2'">
+        <size:small>
+          <xsl:apply-templates select="node()"/>
+        </size:small>
+      </xsl:when>
+      <xsl:when test="@size = '3'">
+        <size:small>
+          <xsl:apply-templates select="node()"/>
+        </size:small>
+      </xsl:when>
+      <xsl:when test="@size = '5'">
+        <size:big>
+          <xsl:apply-templates select="node()"/>
+        </size:big>
+      </xsl:when>
+      <xsl:when test="@size = '6'">
+        <size:large>
+          <xsl:apply-templates select="node()"/>
+        </size:large>
+      </xsl:when>
+      <xsl:when test="@size = '7'">
+        <size:huge>
+          <xsl:apply-templates select="node()"/>
+        </size:huge>
+      </xsl:when>
+      <xsl:when test="@face = 'Courier New'">
+        <tomboy:monospace>
+          <xsl:apply-templates select="node()"/>
+        </tomboy:monospace>
+      </xsl:when>
+      <xsl:when test="@face = 'Andale Mono'">
+        <tomboy:monospace>
+          <xsl:apply-templates select="node()"/>
+        </tomboy:monospace>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+  
+  
+  <!-- find some better way to do rules 
+  <xsl:template match="hr">
+    <xsl:text>
+    </xsl:text>
+  </xsl:template>
+  -->
+  
   <xsl:template match="ul">
     <list>
       <xsl:apply-templates select="*"/>
