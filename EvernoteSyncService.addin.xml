@@ -5,7 +5,7 @@
 	description="Synchronize Tomboy Notes to Evernote"
 	category="Synchronization"
 	defaultEnabled="false"
-	version="0.1">
+	version="0.3">
 
 	<Runtime>
 		<Import assembly="EvernoteSyncService.dll" />
